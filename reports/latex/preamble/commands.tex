@@ -1,0 +1,54 @@
+% ==========================================================
+%  preamble/commands.tex — สี มาโคร และคำสั่งเฉพาะโครงงาน
+% ==========================================================
+
+% ---------- สีและกล่องเน้นข้อความ ----------
+\definecolor{kkuMaroon}{HTML}{7B1F2B}
+\definecolor{noteBg}{HTML}{F4F6F8}
+\definecolor{noteRule}{HTML}{2A9D8F}
+\definecolor{warnRule}{HTML}{E76F51}
+
+\newenvironment{keynote}[1][ข้อสังเกต]
+  {\par\medskip\noindent\textcolor{noteRule}{\rule{3pt}{0.95em}}\ \textbf{#1}%
+   \par\nopagebreak\vspace{0.25em}%
+   \begingroup\leftskip=1.2em\rightskip=0.4em\noindent\ignorespaces}
+  {\par\endgroup\medskip}
+
+\newenvironment{warnnote}[1][ข้อควรระวัง]
+  {\par\medskip\noindent\textcolor{warnRule}{\rule{3pt}{0.95em}}\ \textbf{#1}%
+   \par\nopagebreak\vspace{0.25em}%
+   \begingroup\leftskip=1.2em\rightskip=0.4em\noindent\ignorespaces}
+  {\par\endgroup\medskip}
+
+% ---------- คำสั่งช่วยเหลือเชิงวิทยาศาสตร์ ----------
+\newcommand{\Mpro}{M\textsuperscript{pro}}
+\newcommand{\CLpro}{3CL\textsuperscript{pro}}
+\newcommand{\pICfifty}{pIC\textsubscript{50}}
+\newcommand{\ICfifty}{IC\textsubscript{50}}
+\newcommand{\Rsq}{R\textsuperscript{2}}
+
+% ---------- คอลัมน์ตารางแบบกำหนดความกว้างและการจัดแนว ----------
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% ---------- ระยะห่างในตาราง ----------
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+
+% ---------- ชื่อย่อวิทยาศาสตร์สำหรับ PDF Bookmarks ----------
+\pdfstringdefDisableCommands{%
+  \def\Mpro{Mpro}%
+  \def\CLpro{3CLpro}%
+  \def\pICfifty{pIC50}%
+  \def\ICfifty{IC50}%
+  \def\Rsq{R2}%
+}
+
+% ---------- ข้อมูลเอกสารสำหรับ PDF Metadata ----------
+\hypersetup{
+  pdftitle={การประยุกต์ใช้การเรียนรู้ของเครื่องเพื่อทำนายฤทธิ์ทางชีวภาพของสารยับยั้ง SARS-CoV-2 Main Protease},
+  pdfauthor={รุ่งธรรม ล้อมในเมือง และ วรรณวิษา เลาเลิศ},
+  pdfsubject={QSAR, Machine Learning, SARS-CoV-2 Main Protease},
+  pdfkeywords={QSAR, Machine Learning, pIC50, Morgan Fingerprints, SHAP}
+}

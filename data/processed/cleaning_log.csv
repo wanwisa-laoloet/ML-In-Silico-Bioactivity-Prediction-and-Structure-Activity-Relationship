@@ -1,0 +1,21 @@
+step,n_rows,dataset
+0. input,2889,ChEMBL
+1. drop null smiles/value,2879,ChEMBL
+2. drop data_validity_comment,2843,ChEMBL
+3. drop value <= 0,2843,ChEMBL
+4-8. RDKit parse + standardize + InChIKey,2843,ChEMBL
+9. compute pIC50,2843,ChEMBL
+10a. dedup by InChIKey (median),2248,ChEMBL
+10b. drop conflicting groups,2235,ChEMBL
+"11. pIC50 in [3.0, 11.0]",2235,ChEMBL
+"12. heavy atoms in [5, 70]",2198,ChEMBL
+13. add bioactivity_class,2198,ChEMBL
+0. input,94,DDH
+1-3. drop null (DDH),94,DDH
+4-8. RDKit parse + standardize + InChIKey,94,DDH
+9. compute pIC50,94,DDH
+10a. dedup by InChIKey (median),94,DDH
+10b. drop conflicting groups,94,DDH
+"11. pIC50 in [3.0, 11.0]",94,DDH
+"12. heavy atoms in [5, 70]",94,DDH
+13. add bioactivity_class,94,DDH

@@ -1,0 +1,16 @@
+% ---------------- Abstract ----------------
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Drug discovery is constrained by substantial time and cost requirements. Experimental determination of compound bioactivity against protein targets such as the SARS-CoV-2 Main Protease (\Mpro/\CLpro) is laborious and expensive. This project develops machine learning models to predict enzyme inhibition potency (\pICfifty) in silico.
+
+Bioactivity data were retrieved from ChEMBL target \texttt{CHEMBL4523582}, yielding 4{,}867 \ICfifty\ records. Assay-level filtering for \CLpro\ retained 2{,}889 records, and a 13-step cleaning protocol produced a curated dataset of 2{,}198 unique molecules. Hybrid features comprising 1{,}024-bit Morgan fingerprints (ECFP4, radius 2) and four Lipinski descriptors (1{,}028 dimensions in total) were extracted. Four regressors --- Dummy, Random Forest, XGBoost and Support Vector Regressor --- were compared within a leakage-safe Scikit-learn Pipeline using 5-fold cross-validation and hyperparameter tuning.
+
+XGBoost achieved the best held-out performance (\Rsq\ = 0.7034, RMSE = 0.5487, MAE = 0.3918, Spearman $\rho$ = 0.8415), substantially exceeding the baseline (\Rsq\ $\approx 0.0000$); 93.6\% of predictions fell within one log unit. Under a Bemis--Murcko scaffold split, \Rsq\ decreased to 0.5127, providing a more realistic estimate of prospective performance.
+
+SHAP analysis identified molecular weight as the most influential feature (Mean$|$SHAP$|$ = 0.1165) and mapped six fingerprint bits to interpretable 2D substructures; bit 301 occurred in 50.9\% of active compounds versus 13.1\% of inactives.
+
+Critically, external validation on 90 independent COVID-19 compounds yielded \Rsq\ = $-1.72$, worse than mean prediction, because 84.4\% of these compounds fell outside the model's applicability domain. This demonstrates that high internal test performance in QSAR does not guarantee generalisation beyond the training chemical space.
+
+\vspace{0.8em}
+\noindent\textbf{Keywords:} Machine Learning, QSAR, SARS-CoV-2 Main Protease, \pICfifty, Morgan Fingerprints, SHAP, Applicability Domain

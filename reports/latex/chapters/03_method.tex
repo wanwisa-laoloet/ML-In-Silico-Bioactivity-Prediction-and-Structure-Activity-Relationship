@@ -1,0 +1,305 @@
+\chapter{วิธีดำเนินการวิจัย}
+
+\section{กรอบการดำเนินงาน}
+
+การดำเนินงานแบ่งเป็น 9 ระยะ (Phase 0--8) ตามลำดับดังนี้
+
+\begin{table}[H]
+\centering
+\caption{ระยะการดำเนินงานทั้ง 9 ระยะ}
+\label{tab:phases}
+\begin{tabular}{C{1.6cm} L{5.6cm} L{6.4cm}}
+\toprule
+\textbf{ระยะ} & \textbf{ชื่อระยะ} & \textbf{ผลผลิตหลัก}\\
+\midrule
+Phase 0 & เตรียมสภาพแวดล้อมและตรวจสอบชุดข้อมูล & \texttt{requirements.txt}, รายงานตรวจสอบข้อมูล\\
+Phase 1 & รวบรวมข้อมูลจาก ChEMBL และกรอง assay & \texttt{chembl\_*\_ic50\_raw.csv}\\
+Phase 2 & ทำความสะอาดข้อมูล 13 ขั้นตอน & \texttt{clean\_bioactivity\_master.csv}\\
+Phase 3 & สกัดคุณลักษณะ 1{,}028 มิติ & \texttt{features\_hybrid.parquet}, \texttt{bitinfo.pkl}\\
+Phase 4 & สำรวจข้อมูลเชิงพรรณนา (EDA) & ภาพที่ 4.1--4.4\\
+Phase 5 & สร้าง Pipeline และ 5-Fold CV (E1--E5b) & \texttt{tbl02\_cv\_results.csv}\\
+Phase 6 & ปรับจูนและประเมินบนชุดทดสอบ & \texttt{tbl03\_test\_results.csv}, แบบจำลอง\\
+Phase 7 & วิเคราะห์ SHAP และ SAR & ภาพที่ 4.8--4.11, ตารางวิเคราะห์ SAR\\
+Phase 8 & ทดสอบข้ามชุดข้อมูลและจัดทำรายงาน & ภาพที่ 4.12--4.13, รายงานฉบับสมบูรณ์\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{เครื่องมือที่ใช้}
+
+\subsection{ฮาร์ดแวร์}
+
+เครื่องคอมพิวเตอร์หน่วยประมวลผลกลาง 4 คอร์ หน่วยความจำหลัก 16 GB ระบบปฏิบัติการ Windows 11
+
+\subsection{ซอฟต์แวร์}
+
+จัดทำสภาพแวดล้อมเสมือน (Virtual Environment) เฉพาะโครงงานที่ \texttt{.venv/} และตรึงเวอร์ชันไว้ใน \texttt{requirements.txt} เพื่อความสามารถทำซ้ำได้
+
+\begin{table}[H]
+\centering
+\caption{ซอฟต์แวร์และไลบรารีที่ใช้}
+\label{tab:software}
+\begin{tabular}{L{3.4cm} C{2.4cm} L{7.6cm}}
+\toprule
+\textbf{ไลบรารี} & \textbf{เวอร์ชัน} & \textbf{หน้าที่}\\
+\midrule
+Python & 3.13.5 & ภาษาโปรแกรมหลัก\\
+RDKit & 2026.3.6 & จัดการโครงสร้างเคมี สกัด Fingerprints วาดภาพโมเลกุล\\
+Scikit-learn & 1.7.2 & Pipeline, ColumnTransformer, Cross-Validation, RF, SVR\\
+XGBoost & 3.4.1 & แบบจำลอง Gradient Boosting\\
+SHAP & 0.52.0 & คำนวณค่า Feature Attribution\\
+pandas & 2.3.2 & จัดการข้อมูลตาราง\\
+NumPy & 2.2.6 & คำนวณเชิงตัวเลข\\
+SciPy & 1.16.3 & สถิติ Mann-Whitney U และ Spearman $\rho$\\
+Matplotlib & 3.11.1 & สร้างกราฟ\\
+Seaborn & 0.13.2 & ธีมและกราฟเชิงสถิติ\\
+PyArrow & 25.0.1 & อ่านและเขียนไฟล์ Parquet\\
+joblib & 1.5.2 & บันทึกและโหลดแบบจำลอง\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+การควบคุมความสามารถทำซ้ำได้กำหนดค่า \texttt{RANDOM\_STATE = 42} ที่ไฟล์ \texttt{src/config.py} และส่งต่อไปยังทุกจุดที่มีการสุ่ม ได้แก่ \texttt{train\_test\_split}, \texttt{KFold}, \texttt{RandomForestRegressor}, \texttt{XGBRegressor} และ \texttt{RandomizedSearchCV}
+
+\section{การตรวจสอบชุดข้อมูลที่ได้รับมอบ}
+
+ก่อนเริ่มดำเนินงาน คณะผู้จัดทำได้ตรวจสอบชุดข้อมูลที่มีอยู่ในโฟลเดอร์ \texttt{Data\_set/} จำนวน 5 ไฟล์ เพื่อประเมินความเหมาะสมกับวัตถุประสงค์ ผลการตรวจสอบสรุปดังตารางที่ \ref{tab:audit}
+
+\begin{table}[H]
+\centering
+\caption{ผลการตรวจสอบชุดข้อมูลที่ได้รับมอบ}
+\label{tab:audit}
+\small
+\begin{tabular}{L{3.4cm} C{1.8cm} L{5.6cm} L{2.6cm}}
+\toprule
+\textbf{ไฟล์} & \textbf{ขนาด} & \textbf{ปัญหาที่พบ} & \textbf{การตัดสินใจ}\\
+\midrule
+\texttt{mergedreal.csv} & $469\times4{,}264$ & มี SMILES ไม่ซ้ำเพียง \textbf{10 ตัว} (แถวซ้ำ 459 แถว) เป็นกรดอะมิโนและสารธรรมชาติ ไม่ใช่สารยับยั้ง \Mpro & ตัดออก\\
+\texttt{xfinal.csv} & $469\times302$ & เป็น subset ของไฟล์ข้างต้นที่ผ่าน Feature Selection บนข้อมูลทั้งชุด จึงมี Leakage ฝังมา & ตัดออก\\
+\texttt{DDH Data.csv} & $104\times3$ & หน่วยเป็น $\mu$M ไม่ใช่ nM และมี 10 แถวเป็นข้อความ \texttt{BLINDED} & ใช้เป็น External Validation\\
+\texttt{DDH Data with Properties.csv} & $104\times40$ & Descriptors จาก PubChem มีค่าหาย 3 แถว และ 1 แถวมี MW = 0 & คำนวณใหม่ด้วย RDKit\\
+\path{molecule_classification_dataset.csv} & $1{,}333\times10$ & เป้าหมายเป็น DRD2/HDAC1/BACE1 ไม่ใช่ COVID และไม่มีค่าฤทธิ์เชิงปริมาณ & ใช้เป็นชุดอ้างอิงปริภูมิเคมี\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+จากผลการตรวจสอบพบว่า \textbf{ไม่มีไฟล์ใดตรงตามข้อกำหนดของวัตถุประสงค์} ซึ่งระบุว่าต้องใช้ข้อมูล SARS-CoV-2 \Mpro\ จาก ChEMBL ที่มี \ICfifty\ หน่วย nM คณะผู้จัดทำจึงตัดสินใจรวบรวมข้อมูลหลักใหม่จาก ChEMBL โดยตรง และปรับใช้ชุดข้อมูลเดิมในบทบาทสนับสนุน โดยจัดเป็นสถาปัตยกรรมข้อมูลสามชั้น
+
+\begin{enumerate}[leftmargin=2em, itemsep=0.4em]
+  \item \textbf{ชั้นที่ 1 (ชุดหลัก)} ข้อมูลจาก ChEMBL เป้าหมาย \texttt{CHEMBL4523582} ใช้สำหรับฝึกและทดสอบแบบจำลอง
+  \item \textbf{ชั้นที่ 2 (ชุดทดสอบข้ามแหล่ง)} ข้อมูล DDH 94 สาร ใช้ทดสอบความสามารถทำนายข้ามชุดข้อมูล โดยไม่แตะจนกว่าจะสรุปแบบจำลองสุดท้ายแล้ว
+  \item \textbf{ชั้นที่ 3 (ชุดอ้างอิงบริบท)} ข้อมูล MultiTarget 1{,}333 สาร ใช้เปรียบเทียบปริภูมิเคมีและทดสอบ Applicability Domain
+\end{enumerate}
+
+\section{การรวบรวมข้อมูล}
+
+\subsection{การเลือกเป้าหมาย}
+
+ตรวจสอบเป้าหมายผ่าน ChEMBL Web Services พบว่า \texttt{CHEMBL4523582} คือ \textit{Replicase polyprotein 1ab} ของ SARS-CoV-2 (UniProt P0DTD1) ประเภท SINGLE PROTEIN ซึ่งมีข้อมูล \ICfifty\ ทั้งสิ้น 6{,}220 รายการ เมื่อกรองเฉพาะหน่วย nM เหลือ 6{,}050 รายการ และเมื่อกรองเฉพาะความสัมพันธ์เท่ากับ (\texttt{=}) เหลือ 4{,}867 รายการ
+
+\subsection{การกรอง assay เฉพาะ \CLpro}
+
+เนื่องจาก \texttt{CHEMBL4523582} ครอบคลุมพอลิโปรตีนทั้งเส้นซึ่งมีหลายโดเมนเอนไซม์ (nsp3/PLpro, nsp5/\Mpro, nsp12/RdRp และอื่น ๆ) จึงจำเป็นต้องกรองเฉพาะ assay ที่วัดฤทธิ์ต่อ \Mpro\ โดยใช้นิพจน์ปกติ (Regular Expression) บนฟิลด์ \texttt{assay\_description} ดังนี้
+
+\begin{verbatim}
+3CL | 3C-like | 3C like | Mpro | M\s*pro | main\s+protease
+\end{verbatim}
+
+\subsection{การเตรียมชุด DDH}
+
+อ่านไฟล์ \texttt{DDH Data.csv} แยกแถวที่มีค่า \texttt{BLINDED} จำนวน 10 แถวออกเป็นชุดสาธิตการทำนาย และแปลงหน่วยของ 94 แถวที่เหลือด้วยความสัมพันธ์ $\pICfifty(\text{มาตรฐาน}) = \pICfifty(\mu\mathrm{M\ basis}) + 6$
+
+\section{การทำความสะอาดข้อมูล}
+
+ดำเนินการตามลำดับ 13 ขั้นตอนอย่างเคร่งครัด ดังตารางที่ \ref{tab:cleansteps}
+
+\begin{table}[H]
+\centering
+\caption{ขั้นตอนการทำความสะอาดข้อมูล 13 ขั้น}
+\label{tab:cleansteps}
+\small
+\begin{tabular}{C{1.0cm} L{7.4cm} L{5.4cm}}
+\toprule
+\textbf{ขั้น} & \textbf{การดำเนินการ} & \textbf{เหตุผล}\\
+\midrule
+1 & ตัดแถวที่ SMILES หรือค่า \ICfifty\ เป็นค่าว่าง & ข้อมูลไม่สมบูรณ์\\
+2 & ตัดแถวที่มี \texttt{data\_validity\_comment} & ChEMBL ระบุเองว่าข้อมูลน่าสงสัย\\
+3 & ตัดแถวที่ค่า \ICfifty\ $\leq 0$ & ค่าเป็นไปไม่ได้ทางกายภาพ\\
+4 & แปลง SMILES เป็นวัตถุโมเลกุลด้วย RDKit & ตรวจความถูกต้องเชิงเคมี\\
+5 & Salt Stripping ด้วย \texttt{LargestFragmentChooser} & เลือกเฉพาะส่วนที่ออกฤทธิ์ ตัดไอออนคู่ออก\\
+6 & Normalize และ Uncharge & ทำให้รูปแบบการเขียนหมู่ฟังก์ชันเป็นมาตรฐาน\\
+7 & แปลงเป็น Canonical SMILES & โมเลกุลเดียวกันต้องได้สายอักขระเดียวกัน\\
+8 & คำนวณ InChIKey & ใช้เป็นกุญแจยุบข้อมูลซ้ำ แม่นกว่า SMILES\\
+9 & คำนวณ $\pICfifty = 9-\log_{10}(\ICfifty[\mathrm{nM}])$ & แปลงเป็นตัวแปรตาม\\
+10 & ยุบข้อมูลซ้ำตาม InChIKey ด้วยค่ามัธยฐาน และตัดกลุ่มที่ SD $>$ 1.0 log unit & ข้อมูลจากหลายห้องปฏิบัติการอาจขัดแย้งกัน\\
+11 & กรองช่วง $3.0 \leq \pICfifty \leq 11.0$ & ตัดค่าที่อยู่นอกช่วงสมเหตุสมผล\\
+12 & ตัดโมเลกุลที่มีอะตอมหนัก $<5$ หรือ $>70$ & ตัดชิ้นส่วนเล็กเกินและโมเลกุลใหญ่ผิดปกติ\\
+13 & เพิ่มคอลัมน์กลุ่มฤทธิ์ & ใช้สำหรับ EDA และ Stratified Split\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+การเลือกใช้ \textbf{ค่ามัธยฐาน} แทนค่าเฉลี่ยในขั้นที่ 10 เนื่องจากค่ามัธยฐานทนต่อค่าผิดปกติได้ดีกว่า และการตัดกลุ่มที่มีส่วนเบี่ยงเบนมาตรฐานเกิน 1.0 log unit ออก เป็นการกำจัดข้อมูลที่แหล่งต้นทางขัดแย้งกันเองจนไม่น่าเชื่อถือ
+
+เกณฑ์การแบ่งกลุ่มฤทธิ์กำหนดเป็น active เมื่อ $\pICfifty \geq 6.0$, intermediate เมื่อ $5.0 \leq \pICfifty < 6.0$ และ inactive เมื่อ $\pICfifty < 5.0$
+
+\begin{table}[H]
+\centering
+\caption{โครงสร้างคอลัมน์ของชุดข้อมูลมาตรฐาน \texttt{clean\_bioactivity\_master.csv}}
+\label{tab:masterschema}
+\begin{tabular}{L{4.4cm} C{2.4cm} L{6.6cm}}
+\toprule
+\textbf{คอลัมน์} & \textbf{ชนิด} & \textbf{คำอธิบาย}\\
+\midrule
+\texttt{molecule\_chembl\_id} & ข้อความ & รหัสอ้างอิงใน ChEMBL\\
+\texttt{canonical\_smiles} & ข้อความ & SMILES มาตรฐานหลังทำความสะอาด\\
+\texttt{inchikey} & ข้อความ & กุญแจยุบข้อมูลซ้ำ\\
+\texttt{ic50\_nM} & ทศนิยม & ค่ามัธยฐานหลังยุบซ้ำ\\
+\texttt{pIC50} & ทศนิยม & ตัวแปรตาม\\
+\texttt{n\_records} & จำนวนเต็ม & จำนวน record ต้นทางที่ยุบมา\\
+\texttt{pIC50\_std} & ทศนิยม & ส่วนเบี่ยงเบนมาตรฐานภายในกลุ่ม\\
+\texttt{n\_heavy} & จำนวนเต็ม & จำนวนอะตอมหนัก\\
+\texttt{bioactivity\_class} & ข้อความ & active / intermediate / inactive\\
+\texttt{source} & ข้อความ & แหล่งข้อมูล\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{การสกัดคุณลักษณะ}
+
+สกัด Morgan Fingerprints ด้วยฟังก์ชันของ RDKit โดยกำหนดรัศมีเท่ากับ 2 และขนาดเวกเตอร์เท่ากับ 1{,}024 บิต พร้อมเก็บข้อมูลการจับคู่บิตกับอะตอมของทุกโมเลกุลไว้ในไฟล์ \texttt{bitinfo.pkl} เพื่อใช้วาดภาพโครงสร้างย่อยในระยะที่ 7
+
+คำนวณ Lipinski Descriptors 4 ตัว ได้แก่ MW, LogP, HBD และ HBA ด้วยฟังก์ชันของ RDKit รวมได้เมทริกซ์คุณลักษณะขนาด 1{,}028 มิติ
+
+\begin{warnnote}[ข้อควรระวังสำคัญ]
+ไม่ดำเนินการตัดบิตที่มีความแปรปรวนต่ำนอก Pipeline บนข้อมูลทั้งชุด เนื่องจากจะก่อให้เกิด Feature Selection Leakage แบบเดียวกับที่ตรวจพบในไฟล์ \texttt{xfinal.csv} นอกจากนี้ไม่นำค่า \texttt{lipinski\_violations} มาใช้เป็นคุณลักษณะ เพราะเป็นฟังก์ชันของ 4 ตัวแรกจึงซ้ำซ้อน
+\end{warnnote}
+
+\section{การสำรวจข้อมูล}
+
+ดำเนินการสำรวจข้อมูลเชิงพรรณนา ประกอบด้วยการวิเคราะห์การแจกแจงของ \pICfifty\ การเปรียบเทียบปริภูมิเคมีบนแกน MW--LogP การทดสอบความแตกต่างของ Lipinski Descriptors ระหว่างกลุ่มฤทธิ์ด้วยสถิติ Mann-Whitney U การสกัดโครงสร้างแกนกลาง Murcko และการเปรียบเทียบปริภูมิเคมีของชุดข้อมูลทั้งสามชั้น
+
+เลือกใช้สถิติ Mann-Whitney U ซึ่งเป็นสถิติแบบไม่อิงพารามิเตอร์ เนื่องจากไม่ทราบแน่ชัดว่าการแจกแจงของ descriptors เป็นแบบปกติหรือไม่
+
+\section{การแบ่งข้อมูล}
+
+\subsection{Random Split}
+
+แบ่งข้อมูลเป็นชุดฝึกร้อยละ 75 และชุดทดสอบร้อยละ 25 ด้วย \texttt{train\_test\_split} โดยกำหนด \texttt{stratify} ตามคอลัมน์กลุ่มฤทธิ์ เพื่อให้สัดส่วน active/intermediate/inactive เท่ากันทั้งสองฝั่ง
+
+\subsection{Scaffold Split}
+
+สกัดโครงสร้างแกนกลาง Bemis--Murcko ของทุกโมเลกุล จัดกลุ่มตาม Scaffold แล้วเรียงลำดับกลุ่มจากใหญ่ไปเล็ก จากนั้นทยอยจัดกลุ่มใหญ่เข้าชุดฝึกก่อนจนเต็มโควตา ส่วนที่เหลือเข้าชุดทดสอบ วิธีนี้ทำให้ชุดทดสอบประกอบด้วยโครงสร้างแกนกลางที่พบไม่บ่อยและไม่ปรากฏในชุดฝึกเลย
+
+\section{การสร้าง Pipeline ป้องกันการรั่วไหล}
+
+โครงสร้าง Pipeline ประกอบด้วยสองขั้นตอนหลัก ดังโค้ดต่อไปนี้
+
+\begin{verbatim}
+preprocessor = ColumnTransformer([
+    ('fp',   'passthrough',    FP_COLS),     # 1,024 bits: no scaling
+    ('desc', StandardScaler(), DESC_COLS),   # scale 4 descriptors
+], remainder='drop')
+
+pipe = Pipeline([
+    ('prep',  preprocessor),
+    ('model', estimator),
+])
+\end{verbatim}
+
+เมื่อส่ง Pipeline นี้เข้าสู่ \texttt{cross\_validate} ระบบจะเรียก \texttt{pipe.fit()} ใหม่ในทุก Fold โดยใช้เฉพาะข้อมูลชุดฝึกของ Fold นั้น ทำให้ค่าเฉลี่ยและส่วนเบี่ยงเบนมาตรฐานที่ \texttt{StandardScaler} ใช้ไม่ได้รับอิทธิพลจากชุดตรวจสอบ
+
+\section{การออกแบบการทดลอง}
+
+\begin{table}[H]
+\centering
+\caption{การออกแบบการทดลอง E1--E6}
+\label{tab:experiments}
+\small
+\begin{tabular}{C{1.0cm} L{2.7cm} L{3.0cm} L{2.7cm} L{3.8cm}}
+\toprule
+\textbf{รหัส} & \textbf{การแบ่งข้อมูล} & \textbf{คุณลักษณะ} & \textbf{แบบจำลอง} & \textbf{จุดประสงค์}\\
+\midrule
+E1 & Random 75/25 & 1{,}028 (Hybrid) & 4 แบบจำลอง & ผลหลักตอบวัตถุประสงค์ที่ 1\\
+E2 & Scaffold 75/25 & 1{,}028 (Hybrid) & 4 แบบจำลอง & ทดสอบเข้มงวด\\
+E3 & Random 75/25 & 1{,}024 (FP เท่านั้น) & Random Forest & Ablation: Lipinski มีค่าเพิ่มหรือไม่\\
+E4 & Random 75/25 & 4 (Lipinski เท่านั้น) & Random Forest & Ablation: FP มีค่าเพิ่มเท่าใด\\
+E5 & Random 75/25 & 1{,}028 & SVR & พิสูจน์ Preprocessing Leakage\\
+E5b & Random 75/25 & 300 (SelectKBest) & Random Forest & พิสูจน์ Feature Selection Leakage\\
+E6 & --- & 1{,}028 & แบบจำลองที่ดีที่สุด & ทดสอบข้ามชุดข้อมูล\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+การทดลอง E5b ออกแบบให้จำลองสถานการณ์เดียวกับไฟล์ \texttt{xfinal.csv} ที่ตรวจพบในระยะที่ 0 กล่าวคือคัดเลือกคุณลักษณะ 300 ตัวจากทั้งหมดโดยพิจารณาความสัมพันธ์กับตัวแปรตามบนข้อมูลทั้งชุดก่อนแบ่งข้อมูล แล้วเปรียบเทียบกับกรณีที่ทำการคัดเลือกภายใน Pipeline
+
+\section{การปรับจูนไฮเปอร์พารามิเตอร์}
+
+ใช้ \texttt{RandomizedSearchCV} บนชุดฝึกเท่านั้น โดยประเมินด้วย 5-Fold Cross-Validation และใช้ \Rsq\ เป็นเกณฑ์คัดเลือก เหตุผลที่เลือก \texttt{RandomizedSearchCV} แทน \texttt{GridSearchCV} เนื่องจากข้อจำกัดด้านฮาร์ดแวร์ 4 คอร์ ซึ่งการค้นหาแบบครบทุกชุดค่าของ Random Forest จะใช้เวลาเกินความเหมาะสม
+
+\begin{table}[H]
+\centering
+\caption{ค่าไฮเปอร์พารามิเตอร์ที่ใช้ค้นหา}
+\label{tab:hpgrid}
+\begin{tabular}{L{3.2cm} L{4.2cm} L{4.6cm} C{1.8cm}}
+\toprule
+\textbf{แบบจำลอง} & \textbf{พารามิเตอร์} & \textbf{ค่าที่ทดลอง} & \textbf{รอบสุ่ม}\\
+\midrule
+\multirow{5}{*}{Random Forest}
+ & \texttt{n\_estimators} & 300, 500, 800 & \multirow{5}{*}{30}\\
+ & \texttt{max\_depth} & None, 15, 25 & \\
+ & \texttt{min\_samples\_split} & 2, 5, 10 & \\
+ & \texttt{min\_samples\_leaf} & 1, 2, 4 & \\
+ & \texttt{max\_features} & 'sqrt', 0.3 & \\
+\midrule
+\multirow{5}{*}{XGBoost}
+ & \texttt{n\_estimators} & 300, 600 & \multirow{5}{*}{30}\\
+ & \texttt{learning\_rate} & 0.03, 0.05, 0.1 & \\
+ & \texttt{max\_depth} & 4, 6, 8 & \\
+ & \texttt{subsample} & 0.8, 1.0 & \\
+ & \texttt{colsample\_bytree} & 0.6, 0.8 & \\
+\midrule
+\multirow{3}{*}{SVR (RBF)}
+ & \texttt{C} & 1, 10, 100 & \multirow{3}{*}{27}\\
+ & \texttt{gamma} & 'scale', 0.001, 0.01 & \\
+ & \texttt{epsilon} & 0.05, 0.1, 0.2 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{การประเมินบนชุดทดสอบ}
+
+ชุดทดสอบถูกใช้เพียงครั้งเดียวหลังการปรับจูนเสร็จสิ้น ประเมินด้วย \Rsq, RMSE, MAE และเพิ่ม Spearman $\rho$ ซึ่งวัดความสามารถในการจัดอันดับสาร กำหนดเกณฑ์ตีความล่วงหน้าดังตารางที่ \ref{tab:r2criteria}
+
+\begin{table}[H]
+\centering
+\caption{เกณฑ์ตีความค่า \Rsq\ ที่กำหนดไว้ล่วงหน้า}
+\label{tab:r2criteria}
+\begin{tabular}{C{3.6cm} L{9.0cm}}
+\toprule
+\textbf{ช่วง Test \Rsq} & \textbf{การตีความ}\\
+\midrule
+$< 0.40$ & อ่อน ต้องอภิปรายสาเหตุ\\
+$0.40 - 0.60$ & ยอมรับได้สำหรับ QSAR ข้ามชุดข้อมูล ChEMBL\\
+$0.60 - 0.75$ & ดี ระดับที่คาดหวังจากโครงงานนี้\\
+$> 0.75$ & ดีมาก ต้องตรวจสอบ Leakage ซ้ำ\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{การวิเคราะห์ SHAP และ SAR}
+
+ใช้ \texttt{shap.TreeExplainer} กับแบบจำลองประเภทต้นไม้ที่ให้ผลดีที่สุด คำนวณค่า SHAP บนชุดทดสอบจำนวน 400 โมเลกุล (สุ่มจาก 550 โมเลกุล) เพื่อควบคุมเวลาประมวลผล ขั้นตอนการจับคู่ย้อนกลับเป็นภาพโครงสร้างย่อยมีดังนี้
+
+\begin{enumerate}[leftmargin=2em, itemsep=0.3em]
+  \item คัดเลือกบิตที่ติดอันดับ Mean$|$SHAP$|$ สูงสุด
+  \item คำนวณค่า SHAP เฉลี่ยเมื่อบิตนั้นมีค่าเป็น 1 เพื่อระบุทิศทาง (เพิ่มหรือลดฤทธิ์)
+  \item เลือกบิตที่ผลักดันฤทธิ์ขึ้น 3 บิต และผลักดันฤทธิ์ลง 3 บิต
+  \item ค้นหาโมเลกุลที่มีบิตนั้นและมีค่า $|$SHAP$|$ สูงสุด
+  \item วาดภาพด้วย \texttt{Draw.DrawMorganBit}
+  \item คำนวณร้อยละการปรากฏของบิตในกลุ่ม active และ inactive เพื่อยืนยันเชิงสถิติ
+\end{enumerate}
+
+\section{การทดสอบข้ามชุดข้อมูลและ Applicability Domain}
+
+นำแบบจำลองที่บันทึกไว้มาทำนายชุด DDH โดยตัดสารที่มี InChIKey ซ้ำกับชุดฝึกออกก่อน จากนั้นวิเคราะห์ Applicability Domain ด้วยการคำนวณค่าความคล้ายคลึง Tanimoto สูงสุดของแต่ละสารเทียบกับสารทั้งหมดในชุดฝึก และเปรียบเทียบระหว่างชุดข้อมูลสามชุด

@@ -1,0 +1,104 @@
+% ==========================================================
+%  preamble/preamble.tex — การตั้งค่าเอกสารและแพ็กเกจหลัก
+% ==========================================================
+
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amsmath, amssymb}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage[hidelinks, bookmarks=true, bookmarksnumbered=true]{hyperref}
+
+% ---------- ระยะขอบตามมาตรฐานวิทยานิพนธ์ ----------
+\geometry{a4paper, top=3.0cm, bottom=2.5cm, left=3.5cm, right=2.5cm}
+
+% ---------- เส้นทางค้นหารูปภาพ (Graphics Path) ----------
+\graphicspath{{../figures/}{./figures/}}
+
+% ---------- ฟอนต์ไทย: เลือกอัตโนมัติตามที่มีในเครื่อง ----------
+% ลำดับความสำคัญ: TH Sarabun New (มาตรฐานราชการ) > Leelawadee UI > Angsana New > Tahoma
+\newcommand{\THAIFONT}{}
+\IfFontExistsTF{TH Sarabun New}{
+  \renewcommand{\THAIFONT}{TH Sarabun New}
+}{
+  \IfFontExistsTF{Leelawadee UI}{
+    \renewcommand{\THAIFONT}{Leelawadee UI}
+  }{
+    \IfFontExistsTF{Angsana New}{
+      \renewcommand{\THAIFONT}{Angsana New}
+    }{
+      \renewcommand{\THAIFONT}{Tahoma}
+    }
+  }
+}
+
+% AutoFakeSlant/AutoFakeBold ช่วยให้ฟอนต์ไทยที่ไม่มีตัวเอียงยังแสดงผลได้
+\setmainfont{\THAIFONT}[Ligatures=TeX, AutoFakeSlant=0.2, AutoFakeBold=1.5]
+\setsansfont{\THAIFONT}[Ligatures=TeX, AutoFakeSlant=0.2, AutoFakeBold=1.5]
+\newfontfamily\thaifont{\THAIFONT}[Ligatures=TeX]
+
+% ฟอนต์ monospace สำหรับโค้ด (ใช้ฟอนต์ละตินเพื่อความคมชัด)
+\IfFontExistsTF{Consolas}{
+  \setmonofont{Consolas}[Scale=0.88]
+}{
+  \setmonofont{Courier New}[Scale=0.88]
+}
+
+% ---------- การตัดคำภาษาไทย ----------
+% XeTeX ต้องใช้ locale "th" เพื่อตัดคำไทยได้ถูกต้อง
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 0.1pt minus 0.05pt
+\XeTeXlinebreakpenalty = 0
+\sloppy
+\emergencystretch=1em
+\hbadness = 10000
+\vbadness = 10000
+
+% ---------- ระยะห่างบรรทัด ----------
+\linespread{1.25}
+\setlength{\parindent}{1.0cm}
+\setlength{\parskip}{0.35em}
+
+% ---------- รูปแบบหัวข้อ ----------
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\centering}
+  {\chaptertitlename\ \thechapter}{16pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{28pt}
+
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% ---------- ชื่อภาษาไทยของส่วนต่าง ๆ ----------
+\renewcommand{\contentsname}{สารบัญ}
+\renewcommand{\listfigurename}{สารบัญภาพ}
+\renewcommand{\listtablename}{สารบัญตาราง}
+\renewcommand{\chaptername}{บทที่}
+\renewcommand{\figurename}{ภาพที่}
+\renewcommand{\tablename}{ตารางที่}
+\renewcommand{\bibname}{บรรณานุกรม}
+\renewcommand{\appendixname}{ภาคผนวก}
+
+% ---------- รูปแบบคำบรรยายภาพและตาราง ----------
+\captionsetup{font=normalsize, labelfont=bf, justification=centering,
+              skip=6pt, labelsep=space}
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=bottom}
+
+% ---------- หัวกระดาษและท้ายกระดาษ ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}

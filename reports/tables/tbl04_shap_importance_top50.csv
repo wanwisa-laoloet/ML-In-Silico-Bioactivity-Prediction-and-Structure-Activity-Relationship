@@ -1,0 +1,51 @@
+feature,mean_abs_shap,type
+MW,0.11645897,Lipinski descriptor
+FP_10,0.056130428,Morgan fingerprint bit
+FP_904,0.055666212,Morgan fingerprint bit
+FP_301,0.04839053,Morgan fingerprint bit
+HBA,0.03915079,Lipinski descriptor
+FP_847,0.03645878,Morgan fingerprint bit
+FP_578,0.036418367,Morgan fingerprint bit
+FP_684,0.036110353,Morgan fingerprint bit
+FP_807,0.030373178,Morgan fingerprint bit
+FP_794,0.03032364,Morgan fingerprint bit
+LogP,0.02882553,Lipinski descriptor
+FP_583,0.027664267,Morgan fingerprint bit
+FP_675,0.024223544,Morgan fingerprint bit
+FP_759,0.020650115,Morgan fingerprint bit
+FP_482,0.019594263,Morgan fingerprint bit
+HBD,0.019584665,Lipinski descriptor
+FP_206,0.019266354,Morgan fingerprint bit
+FP_117,0.01844108,Morgan fingerprint bit
+FP_330,0.018029526,Morgan fingerprint bit
+FP_305,0.017166877,Morgan fingerprint bit
+FP_558,0.016797243,Morgan fingerprint bit
+FP_843,0.015954101,Morgan fingerprint bit
+FP_792,0.015934316,Morgan fingerprint bit
+FP_816,0.014473987,Morgan fingerprint bit
+FP_953,0.0139520755,Morgan fingerprint bit
+FP_143,0.013319055,Morgan fingerprint bit
+FP_289,0.012938546,Morgan fingerprint bit
+FP_835,0.0125346,Morgan fingerprint bit
+FP_220,0.012436548,Morgan fingerprint bit
+FP_717,0.012132278,Morgan fingerprint bit
+FP_192,0.011364989,Morgan fingerprint bit
+FP_486,0.011359624,Morgan fingerprint bit
+FP_896,0.01088223,Morgan fingerprint bit
+FP_33,0.010804384,Morgan fingerprint bit
+FP_656,0.010693362,Morgan fingerprint bit
+FP_842,0.010434746,Morgan fingerprint bit
+FP_609,0.010071226,Morgan fingerprint bit
+FP_393,0.0099967215,Morgan fingerprint bit
+FP_41,0.009950671,Morgan fingerprint bit
+FP_294,0.009855161,Morgan fingerprint bit
+FP_1017,0.009744339,Morgan fingerprint bit
+FP_200,0.009298731,Morgan fingerprint bit
+FP_518,0.00913149,Morgan fingerprint bit
+FP_866,0.009052419,Morgan fingerprint bit
+FP_361,0.008991751,Morgan fingerprint bit
+FP_1000,0.008765554,Morgan fingerprint bit
+FP_575,0.008647524,Morgan fingerprint bit
+FP_1,0.0083241435,Morgan fingerprint bit
+FP_829,0.008259779,Morgan fingerprint bit
+FP_14,0.00823953,Morgan fingerprint bit

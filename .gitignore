@@ -1,0 +1,44 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ข้อมูลดิบและไฟล์ขนาดใหญ่ (สร้างใหม่ได้ด้วย src/acquire.py)
+data/raw/
+data/interim/
+data/processed/*.parquet
+data/processed/bitinfo.pkl
+data/processed/*.npy
+
+# โมเดลที่เทรนแล้ว (สร้างใหม่ได้ด้วย src/tune_eval.py)
+models/*.joblib
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Temporary files and logs
+tmp/
+*.log
+
+# LaTeX build artifacts
+reports/latex/*.aux
+reports/latex/*.bbl
+reports/latex/*.bcf
+reports/latex/*.blg
+reports/latex/*.fdb_latexmk
+reports/latex/*.fls
+reports/latex/*.lof
+reports/latex/*.log
+reports/latex/*.lot
+reports/latex/*.out
+reports/latex/*.run.xml
+reports/latex/*.synctex.gz
+reports/latex/*.toc
+reports/latex/*.xdv

@@ -1,0 +1,122 @@
+% ==========================================================
+%  appendix_a_code.tex — ภาคผนวก ก: โครงสร้างไฟล์และโค้ดโปรแกรม
+% ==========================================================
+
+\chapter{โครงสร้างไฟล์และโค้ดโปรแกรม}
+
+\section{โครงสร้างโปรเจกต์}
+
+\begingroup\scriptsize
+\begin{verbatim}
+SilicoBioactivityPredict/
+├── .venv/                          project virtual environment
+├── Data_set/                       original raw data (read-only)
+├── Docs/
+│   ├── Machine Learning ....pdf    project proposal
+│   └── Project_Plan.md             execution plan
+├── data/
+│   ├── raw/                        raw ChEMBL API output
+│   ├── interim/                    after assay filtering
+│   └── processed/
+│       ├── clean_bioactivity_master.csv    2,198 molecules
+│       ├── features_hybrid.parquet         1,028 features
+│       ├── bitinfo.pkl                     Morgan bit info
+│       ├── predictions_test.csv
+│       └── predictions_external_ddh.csv
+├── src/                            source code, 11 files
+│   ├── config.py                   global constants
+│   ├── acquire.py                  Phase 1
+│   ├── clean.py                    Phase 2
+│   ├── features.py                 Phase 3
+│   ├── eda.py                      Phase 4
+│   ├── pipelines.py                Pipeline + Scaffold Split
+│   ├── model_cv.py                 Phase 5
+│   ├── tune_eval.py                Phase 6
+│   ├── explain.py                  Phase 7
+│   ├── external_validation.py      Phase 8
+│   └── make_report.py              automated report builder
+├── models/best_model_xgboost_20260908.joblib
+├── reports/
+│   ├── figures/                    18 figures
+│   ├── tables/                     10 result tables
+│   ├── latex/                      LaTeX source of this report
+│   └── final_report.md
+├── requirements.txt
+└── README.md
+\end{verbatim}
+\endgroup
+
+\section{ลำดับการรันโปรแกรม}
+
+\begingroup\scriptsize
+\begin{verbatim}
+cd src && ../.venv/Scripts/python.exe acquire.py
+cd src && ../.venv/Scripts/python.exe clean.py
+cd src && ../.venv/Scripts/python.exe features.py
+cd src && ../.venv/Scripts/python.exe eda.py
+cd src && ../.venv/Scripts/python.exe model_cv.py
+cd src && ../.venv/Scripts/python.exe tune_eval.py
+cd src && ../.venv/Scripts/python.exe explain.py
+cd src && ../.venv/Scripts/python.exe external_validation.py
+cd src && ../.venv/Scripts/python.exe make_report.py
+\end{verbatim}
+\endgroup
+
+\section{โค้ดสำคัญ: Pipeline ป้องกัน Data Leakage}
+
+\begingroup\scriptsize
+\begin{verbatim}
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
+
+def make_pipe(estimator, fp_cols=FP_COLS, desc_cols=DESC_COLS):
+    transformers = []
+    if fp_cols:
+        transformers.append(("fp", "passthrough", list(fp_cols)))
+    if desc_cols:
+        transformers.append(("desc", StandardScaler(), list(desc_cols)))
+    prep = ColumnTransformer(transformers, remainder="drop")
+    return Pipeline([("prep", prep), ("model", estimator)])
+\end{verbatim}
+\endgroup
+
+\section{โค้ดสำคัญ: Scaffold Split}
+
+\begingroup\scriptsize
+\begin{verbatim}
+from collections import defaultdict
+from rdkit.Chem.Scaffolds import MurckoScaffold
+
+def scaffold_split(smiles_list, test_frac=0.25):
+    buckets = defaultdict(list)
+    for i, s in enumerate(smiles_list):
+        sc = MurckoScaffold.MurckoScaffoldSmiles(
+            smiles=s, includeChirality=False)
+        buckets[sc].append(i)
+    groups = sorted(buckets.values(), key=len, reverse=True)
+    n_train = len(smiles_list) - int(len(smiles_list) * test_frac)
+    train, test = [], []
+    for g in groups:
+        (train if len(train) + len(g) <= n_train else test).extend(g)
+    return np.array(train), np.array(test)
+\end{verbatim}
+\endgroup
+
+\section{โค้ดสำคัญ: การสกัดคุณลักษณะแบบผสม}
+
+\begin{verbatim}
+from rdkit import Chem
+from rdkit.Chem import Descriptors, Lipinski, rdFingerprintGenerator
+
+gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024)
+
+def featurize(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    ao = rdFingerprintGenerator.AdditionalOutput()
+    ao.AllocateBitInfoMap()
+    fp = gen.GetFingerprintAsNumPy(mol, additionalOutput=ao)
+    desc = [Descriptors.MolWt(mol), Descriptors.MolLogP(mol),
+            Lipinski.NumHDonors(mol), Lipinski.NumHAcceptors(mol)]
+    return fp, desc, ao.GetBitInfoMap()
+\end{verbatim}

@@ -1,0 +1,52 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+% =====================================================================
+%  รายงานโครงงานคอมพิวเตอร์ CP352101
+%  การประยุกต์ใช้การเรียนรู้ของเครื่องเพื่อทำนายฤทธิ์ทางชีวภาพ
+%  ของสารยับยั้ง SARS-CoV-2 Main Protease แบบ In Silico
+%
+%  คอมไพล์ด้วย:  xelatex report.tex   (รัน 2 ครั้งเพื่อให้สารบัญถูกต้อง)
+%  หรือ:         latexmk -xelatex report.tex
+%  หรือ:         build.bat
+% =====================================================================
+\documentclass[12pt, a4paper, oneside]{report}
+
+% ---------- การตั้งค่าและแพ็กเกจ (Preamble & Commands) ----------
+\input{preamble/preamble}
+\input{preamble/commands}
+
+\begin{document}
+
+% ---------- ส่วนหน้า (Front Matter) ----------
+\pagenumbering{roman}
+\input{frontmatter/titlepage}
+\input{frontmatter/abstract_th}
+\input{frontmatter/abstract_en}
+\input{frontmatter/acknowledgments}
+
+\tableofcontents
+\clearpage
+\listoftables
+\clearpage
+\listoffigures
+\clearpage
+
+% ---------- เนื้อหาหลัก (Main Content / Chapters) ----------
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/01_intro}
+\input{chapters/02_theory}
+\input{chapters/03_method}
+\input{chapters/04_results}
+\input{chapters/05_conclusion}
+
+% ---------- ส่วนท้าย (Back Matter) ----------
+\input{backmatter/bibliography}
+
+% ---------- ภาคผนวก (Appendices) ----------
+\appendix
+\input{backmatter/appendices/appendix_a_code}
+\input{backmatter/appendices/appendix_b_files}
+
+\end{document}

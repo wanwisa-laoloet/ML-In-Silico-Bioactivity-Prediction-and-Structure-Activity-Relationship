@@ -1,0 +1,4 @@
+dataset,n,max_tanimoto_mean,max_tanimoto_median,pct_below_0.4
+ChEMBL test (in-domain),550,0.7541,0.7972,7.6
+DDH external,90,0.334,0.2897,84.4
+MultiTarget (out-of-domain),1331,0.288,0.2738,95.6
