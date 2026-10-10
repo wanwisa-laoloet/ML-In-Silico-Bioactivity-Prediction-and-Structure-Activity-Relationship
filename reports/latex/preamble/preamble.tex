@@ -21,29 +21,33 @@
 \usepackage[hidelinks, bookmarks=true, bookmarksnumbered=true]{hyperref}
 
 % ---------- ระยะขอบตามมาตรฐานวิทยานิพนธ์ ----------
-\geometry{a4paper, top=3.0cm, bottom=2.5cm, left=3.5cm, right=2.5cm}
+\geometry{a4paper, top=3.0cm, bottom=2.5cm, left=3.5cm, right=2.5cm, headheight=16pt, headsep=0.8cm}
 
 % ---------- เส้นทางค้นหารูปภาพ (Graphics Path) ----------
 \graphicspath{{../figures/}{./figures/}}
 
-% ---------- ฟอนต์ไทย: เลือกอัตโนมัติตามที่มีในเครื่อง ----------
-% ลำดับความสำคัญ: TH Sarabun New (มาตรฐานราชการ) > Leelawadee UI > Angsana New > Tahoma
+% ---------- ฟอนต์ไทย: เลือกตามเอกสารอ้างอิง (TH SarabunPSK) ----------
+% ลำดับความสำคัญ: TH SarabunPSK (ตามเอกสารอ้างอิง) > TH Sarabun New > Leelawadee UI > Angsana New > Tahoma
 \newcommand{\THAIFONT}{}
-\IfFontExistsTF{TH Sarabun New}{
-  \renewcommand{\THAIFONT}{TH Sarabun New}
+\IfFontExistsTF{TH SarabunPSK}{
+  \renewcommand{\THAIFONT}{TH SarabunPSK}
 }{
-  \IfFontExistsTF{Leelawadee UI}{
-    \renewcommand{\THAIFONT}{Leelawadee UI}
+  \IfFontExistsTF{TH Sarabun New}{
+    \renewcommand{\THAIFONT}{TH Sarabun New}
   }{
-    \IfFontExistsTF{Angsana New}{
-      \renewcommand{\THAIFONT}{Angsana New}
+    \IfFontExistsTF{Leelawadee UI}{
+      \renewcommand{\THAIFONT}{Leelawadee UI}
     }{
-      \renewcommand{\THAIFONT}{Tahoma}
+      \IfFontExistsTF{Angsana New}{
+        \renewcommand{\THAIFONT}{Angsana New}
+      }{
+        \renewcommand{\THAIFONT}{Tahoma}
+      }
     }
   }
 }
 
-% AutoFakeSlant/AutoFakeBold ช่วยให้ฟอนต์ไทยที่ไม่มีตัวเอียงยังแสดงผลได้
+% AutoFakeSlant/AutoFakeBold ช่วยให้ฟอนต์ไทยแสดงผลตัวเอียงและตัวหนาได้อย่างสมบูรณ์
 \setmainfont{\THAIFONT}[Ligatures=TeX, AutoFakeSlant=0.2, AutoFakeBold=1.5]
 \setsansfont{\THAIFONT}[Ligatures=TeX, AutoFakeSlant=0.2, AutoFakeBold=1.5]
 \newfontfamily\thaifont{\THAIFONT}[Ligatures=TeX]
@@ -72,9 +76,9 @@
 
 % ---------- รูปแบบหัวข้อ ----------
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\centering}
-  {\chaptertitlename\ \thechapter}{16pt}{\Huge}
-\titlespacing*{\chapter}{0pt}{-20pt}{28pt}
+  {\normalfont\LARGE\bfseries\centering}
+  {\chaptertitlename\ \thechapter}{10pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-10pt}{24pt}
 
 \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
@@ -87,7 +91,7 @@
 \renewcommand{\chaptername}{บทที่}
 \renewcommand{\figurename}{ภาพที่}
 \renewcommand{\tablename}{ตารางที่}
-\renewcommand{\bibname}{บรรณานุกรม}
+\renewcommand{\bibname}{เอกสารอ้างอิง}
 \renewcommand{\appendixname}{ภาคผนวก}
 
 % ---------- รูปแบบคำบรรยายภาพและตาราง ----------
@@ -96,9 +100,126 @@
 \captionsetup[table]{position=top}
 \captionsetup[figure]{position=bottom}
 
-% ---------- หัวกระดาษและท้ายกระดาษ ----------
+% ---------- หัวกระดาษและท้ายกระดาษ (เลขหน้ามุมขวาบนตามแบบฟอร์ม มข.) ----------
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[C]{\thepage}
+\fancyhead[R]{\thepage}
+\fancyfoot{}
 \renewcommand{\headrulewidth}{0pt}
-\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+\renewcommand{\footrulewidth}{0pt}
+
+% กำหนดให้หน้าเริ่มต้นบท (plain style) แสดงเลขหน้ามุมขวาบนเช่นกัน
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[R]{\thepage}%
+  \fancyfoot{}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+% ---------- การกำหนดเลขหน้าภาษาไทย (ก ข ค ง ...) สำหรับส่วนหน้า ----------
+\def\thaialph#1{%
+  \ifcase#1\or ก\or ข\or ค\or ง\or จ\or ฉ\or ช\or ซ\or ฌ\or ญ%
+  \or ฎ\or ฏ\or ฐ\or ฑ\or ฒ\or ณ\or ด\or ต\or ถ\or ท%
+  \or ธ\or น\or บ\or ป\or ผ\or ฝ\or พ\or ฟ\or ภ\or ม%
+  \or ย\or ร\or ล\or ว\or ศ\or ษ\or ส\or ห\or ฬ\or อ\or ฮ\else\relax\fi}
+\newcommand{\pagenumberingthai}{%
+  \renewcommand{\thepage}{\thaialph{\value{page}}}%
+}
+
+% ---------- รูปแบบสารบัญ สารบัญตาราง และสารบัญภาพ ----------
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\contentsname}%
+  \begin{center}%
+    {\normalfont\LARGE\bfseries\contentsname\par}%
+  \end{center}%
+  \vspace{0.8em}%
+  \noindent\mbox{}\hfill\textbf{หน้า}\par\vspace{0.4em}%
+  \@starttoc{toc}%
+}
+
+\renewcommand{\listoftables}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listtablename}%
+  \begin{center}%
+    {\normalfont\LARGE\bfseries\listtablename\par}%
+  \end{center}%
+  \vspace{0.8em}%
+  \noindent\mbox{}\hfill\textbf{หน้า}\par\vspace{0.4em}%
+  \begingroup
+  \let\orig@numberline\numberline
+  \def\numberline##1{\orig@numberline{\tablename\ ##1\hspace{0.5em}}}%
+  \@starttoc{lot}%
+  \endgroup
+}
+
+\renewcommand{\listoffigures}{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listfigurename}%
+  \begin{center}%
+    {\normalfont\LARGE\bfseries\listfigurename\par}%
+  \end{center}%
+  \vspace{0.8em}%
+  \noindent\mbox{}\hfill\textbf{หน้า}\par\vspace{0.4em}%
+  \begingroup
+  \let\orig@numberline\numberline
+  \def\numberline##1{\orig@numberline{\figurename\ ##1\hspace{0.5em}}}%
+  \@starttoc{lof}%
+  \endgroup
+}
+
+% ปรับการแสดงรายการบทในสารบัญ (แสดง "บทที่ 1  ..." หรือ "ภาคผนวก ก  ...")
+\def\@chapter[#1]#2{%
+  \ifnum \c@secnumdepth >\m@ne
+    \refstepcounter{chapter}%
+    \typeout{\@chapapp\space\thechapter.}%
+    \addcontentsline{toc}{chapter}%
+      {\protect\numberline{\@chapapp\ \thechapter\hspace{0.5em}}#1}%
+  \else
+    \addcontentsline{toc}{chapter}{#1}%
+  \fi
+  \chaptermark{#1}%
+  \addtocontents{lof}{\protect\addvspace{10\p@}}%
+  \addtocontents{lot}{\protect\addvspace{10\p@}}%
+  \if@twocolumn
+    \@topnewpage[\@makechapterhead{#2}]%
+  \else
+    \@makechapterhead{#2}%
+    \@afterheading
+  \fi}
+
+% ปรับความกว้างของเลขบทใน TOC
+\renewcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \vskip 1.0em \@plus\p@
+    \setlength\@tempdima{6.2em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+
+% กำหนดความกว้างคอลัมน์หมายเลขใน LOF และ LOT
+\renewcommand*\l@figure{\@dottedtocline{1}{0em}{5.8em}}
+\renewcommand*\l@table{\@dottedtocline{1}{0em}{5.8em}}
+
+% กำหนดภาคผนวกเป็นอักษรภาษาไทย (ก, ข, ...)
+\gdef\appendix{%
+  \par
+  \setcounter{chapter}{0}%
+  \setcounter{section}{0}%
+  \gdef\@chapapp{\appendixname}%
+  \gdef\chaptername{\appendixname}%
+  \gdef\thechapter{\thaialph{\value{chapter}}}}
+\makeatother

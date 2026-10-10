@@ -18,16 +18,19 @@
 \begin{document}
 
 % ---------- ส่วนหน้า (Front Matter) ----------
-\pagenumbering{roman}
 \input{frontmatter/titlepage}
+\input{frontmatter/contributions}
+
+% เริ่มนับเลขหน้าส่วนหน้าด้วยอักษรภาษาไทย (ก ข ค ง ...)
+\pagenumberingthai
+\setcounter{page}{1}
+
 \input{frontmatter/abstract_th}
 \input{frontmatter/abstract_en}
 \input{frontmatter/acknowledgments}
 
 \tableofcontents
-\clearpage
 \listoftables
-\clearpage
 \listoffigures
 \clearpage
 
